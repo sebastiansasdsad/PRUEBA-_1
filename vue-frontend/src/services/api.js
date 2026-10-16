@@ -1,7 +1,7 @@
 /**
  * @module services/api
  * @description Axios HTTP client instance with global interceptors for
- * request/response handling, error management, and toast notifications.
+ * request/response handling, bearer token injection, error management, and toast notifications.
  */
 import axios from 'axios'
 import { useToastStore } from '../stores/toast'
@@ -22,13 +22,14 @@ const api = axios.create({
 })
 
 /**
- * Request interceptor — adds auth tokens or other headers as needed.
+ * Request interceptor — adds Bearer authentication token when present.
  */
 api.interceptors.request.use(
   (config) => {
-    // Future: inject auth token here
-    // const token = localStorage.getItem('token')
-    // if (token) config.headers.Authorization = `Bearer ${token}`
+    const token = localStorage.getItem('admin_token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => {
@@ -55,8 +56,20 @@ api.interceptors.response.use(
     }
 
     const { status, data } = error.response
+    const isLoginRequest = error.config?.url?.includes('/auth/login')
 
     switch (status) {
+      case 401:
+        if (!isLoginRequest) {
+          localStorage.removeItem('admin_token')
+          localStorage.removeItem('admin_user')
+          toast.warning(
+            'Sesión Expirada',
+            'Tu sesión ha finalizado. Por favor ingresa nuevamente.'
+          )
+          window.location.href = '/login'
+        }
+        break
       case 422:
         // Validation errors — handled locally by forms, but show a general toast
         toast.warning(

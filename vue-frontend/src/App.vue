@@ -1,19 +1,25 @@
 <template>
-  <div class="app-layout">
-    <AppSidebar :isOpen="sidebarOpen" @navigate="sidebarOpen = false" />
+  <div>
+    <!-- Full authenticated layout -->
+    <div v-if="route.name !== 'login'" class="app-layout">
+      <AppSidebar :isOpen="sidebarOpen" @navigate="sidebarOpen = false" />
 
-    <!-- Mobile header -->
-    <button
-      class="mobile-menu-btn"
-      @click="sidebarOpen = !sidebarOpen"
-      aria-label="Toggle menu"
-    >
-      ☰
-    </button>
+      <!-- Mobile header -->
+      <button
+        class="mobile-menu-btn"
+        @click="sidebarOpen = !sidebarOpen"
+        aria-label="Toggle menu"
+      >
+        ☰
+      </button>
 
-    <main class="main-content">
-      <RouterView />
-    </main>
+      <main class="main-content">
+        <RouterView />
+      </main>
+    </div>
+
+    <!-- Login plain layout -->
+    <RouterView v-else />
 
     <ToastNotification />
   </div>
@@ -22,13 +28,14 @@
 <script setup>
 /**
  * @component App
- * @description Root application component. Manages the sidebar layout and
- * renders the active route view alongside global toast notifications.
+ * @description Root application component with conditional layout for guest/login views.
  */
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import AppSidebar from './components/AppSidebar.vue'
 import ToastNotification from './components/ToastNotification.vue'
 
+const route = useRoute()
 const sidebarOpen = ref(false)
 </script>
 
