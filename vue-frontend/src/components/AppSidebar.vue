@@ -2,7 +2,7 @@
   <aside class="sidebar" :class="{ open: isOpen }">
     <div class="sidebar-brand">
       <h1>Inventario Pro</h1>
-      <p>Panel de Administración</p>
+      <p>{{ authStore.isAdmin ? 'Panel de Administración' : 'Portal de Clientes' }}</p>
     </div>
 
     <nav class="sidebar-nav">
@@ -33,15 +33,20 @@
       </RouterLink>
     </nav>
 
-    <!-- Admin User Profile & Logout -->
+    <!-- User Profile & Logout -->
     <div class="sidebar-user-section">
       <div class="user-profile-card">
-        <div class="user-avatar">
+        <div class="user-avatar" :class="{ 'client-avatar': !authStore.isAdmin }">
           {{ userInitials }}
         </div>
         <div class="user-info">
-          <div class="user-name">{{ authStore.currentUser?.name || 'Administrador' }}</div>
-          <div class="user-email">{{ authStore.currentUser?.email || 'admin@inventariopro.com' }}</div>
+          <div style="display: flex; align-items: center; gap: 0.375rem;">
+            <span class="user-name">{{ authStore.currentUser?.name || 'Usuario' }}</span>
+            <span class="badge" :class="authStore.isAdmin ? 'badge-purple' : 'badge-green'" style="font-size: 0.625rem; padding: 0.125rem 0.375rem;">
+              {{ authStore.isAdmin ? 'ADMIN' : 'CLIENTE' }}
+            </span>
+          </div>
+          <div class="user-email">{{ authStore.currentUser?.email || '' }}</div>
         </div>
       </div>
 
@@ -65,7 +70,7 @@
 <script setup>
 /**
  * @component AppSidebar
- * @description Main sidebar navigation with brand, routes, admin profile, and logout.
+ * @description Main sidebar navigation displaying role-specific info and logout.
  */
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -80,7 +85,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const userInitials = computed(() => {
-  const name = authStore.currentUser?.name || 'Admin'
+  const name = authStore.currentUser?.name || 'U'
   return name
     .split(' ')
     .map((w) => w[0])
@@ -127,6 +132,10 @@ async function handleLogout() {
   font-size: 0.8125rem;
   color: #fff;
   flex-shrink: 0;
+}
+
+.user-avatar.client-avatar {
+  background: linear-gradient(135deg, #00d2a0 0%, #00a8ff 100%);
 }
 
 .user-info {

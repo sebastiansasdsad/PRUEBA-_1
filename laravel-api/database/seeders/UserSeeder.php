@@ -13,11 +13,23 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        User::firstOrCreate(
+        // Administrador
+        User::updateOrCreate(
             ['email' => 'admin@inventariopro.com'],
             [
                 'name'     => 'Administrador del Sistema',
                 'password' => Hash::make('password123'),
+                'role'     => 'admin',
+            ]
+        );
+
+        // Cliente
+        User::updateOrCreate(
+            ['email' => 'cliente@inventariopro.com'],
+            [
+                'name'     => 'Cliente Demo',
+                'password' => Hash::make('cliente123'),
+                'role'     => 'cliente',
             ]
         );
     }

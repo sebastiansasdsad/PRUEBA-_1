@@ -1,7 +1,7 @@
 /**
  * @module stores/auth
  * @description Pinia store for Authentication state management.
- * Manages admin session, Bearer tokens, and user profile data.
+ * Manages admin/client session, Bearer tokens, role checks, and user profile data.
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
@@ -16,11 +16,14 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value)
   const currentUser = computed(() => user.value)
+  const role = computed(() => user.value?.role || 'cliente')
+  const isAdmin = computed(() => user.value?.role === 'admin')
+  const isClient = computed(() => user.value?.role === 'cliente')
 
   const toast = useToastStore()
 
   /**
-   * Authenticate admin user with credentials.
+   * Authenticate user with credentials.
    * @param {{ email: string, password: string }} credentials
    * @returns {Promise<boolean>}
    */
@@ -35,7 +38,8 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('admin_token', data.data.token)
       localStorage.setItem('admin_user', JSON.stringify(data.data.user))
 
-      toast.success('Bienvenido', `Sesión iniciada como ${data.data.user.name}`)
+      const roleLabel = data.data.user.role === 'admin' ? 'Administrador' : 'Cliente'
+      toast.success('Bienvenido', `Sesión iniciada como ${data.data.user.name} (${roleLabel})`)
       return true
     } catch (err) {
       error.value = err.response?.data?.message || 'Error al iniciar sesión.'
@@ -60,7 +64,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   /**
-   * Log out the admin and clear local session state.
+   * Log out the user and clear local session state.
    * @param {boolean} [callApi=true]
    */
   async function logout(callApi = true) {
@@ -87,6 +91,9 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     isAuthenticated,
     currentUser,
+    role,
+    isAdmin,
+    isClient,
     login,
     fetchProfile,
     logout,

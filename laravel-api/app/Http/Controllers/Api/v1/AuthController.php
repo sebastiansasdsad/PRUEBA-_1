@@ -20,8 +20,8 @@ class AuthController extends Controller
         path: '/auth/login',
         operationId: 'authLogin',
         tags: ['Autenticación'],
-        summary: 'Iniciar sesión como administrador',
-        description: 'Autentica las credenciales del usuario y retorna un token de acceso Bearer (Laravel Sanctum).'
+        summary: 'Iniciar sesión (Admin o Cliente)',
+        description: 'Autentica las credenciales del usuario y retorna el perfil con su rol y un token de acceso Bearer (Laravel Sanctum).'
     )]
     #[OA\RequestBody(
         required: true,
@@ -68,13 +68,14 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         // Generate Sanctum access token
-        $token = $user->createToken('admin-token')->plainTextToken;
+        $token = $user->createToken('auth-token')->plainTextToken;
 
         return $this->successResponse([
             'user' => [
                 'id'    => $user->id,
                 'name'  => $user->name,
                 'email' => $user->email,
+                'role'  => $user->role,
             ],
             'token' => $token,
         ], 'Inicio de sesión exitoso');
@@ -85,7 +86,7 @@ class AuthController extends Controller
         operationId: 'authMe',
         tags: ['Autenticación'],
         summary: 'Obtener información del usuario autenticado',
-        description: 'Retorna el perfil del administrador autenticado mediante Bearer token.'
+        description: 'Retorna el perfil del usuario autenticado mediante Bearer token.'
     )]
     #[OA\Response(
         response: 200,
@@ -103,6 +104,7 @@ class AuthController extends Controller
             'id'    => $user->id,
             'name'  => $user->name,
             'email' => $user->email,
+            'role'  => $user->role,
         ], 'Perfil de usuario obtenido');
     }
 

@@ -5,7 +5,9 @@
         <h1 class="page-title">Categorías</h1>
         <p class="page-subtitle">{{ categoryStore.categoryCount }} categorías registradas</p>
       </div>
-      <button class="btn btn-primary" @click="openCreate">+ Nueva Categoría</button>
+      <button v-if="authStore.isAdmin" class="btn btn-primary" @click="openCreate">
+        + Nueva Categoría
+      </button>
     </div>
 
     <LoadingSpinner v-if="categoryStore.loading" text="Cargando categorías…" />
@@ -28,7 +30,7 @@
             </div>
             <span class="badge badge-purple">{{ category.products_count ?? 0 }} productos</span>
           </div>
-          <div style="display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--color-border);">
+          <div v-if="authStore.isAdmin" style="display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--color-border);">
             <button class="btn btn-secondary btn-sm" @click="openEdit(category)">✏️ Editar</button>
             <button class="btn btn-danger btn-sm" @click="confirmDelete(category)">🗑️ Eliminar</button>
           </div>
@@ -43,8 +45,10 @@
         <div class="empty-state">
           <div class="empty-icon">📂</div>
           <div class="empty-title">Sin categorías</div>
-          <div class="empty-desc">Crea tu primera categoría para empezar a organizar tus productos.</div>
-          <button class="btn btn-primary" @click="openCreate">+ Crear Categoría</button>
+          <div class="empty-desc">
+            {{ authStore.isAdmin ? 'Crea tu primera categoría para empezar a organizar tus productos.' : 'No hay categorías disponibles en este momento.' }}
+          </div>
+          <button v-if="authStore.isAdmin" class="btn btn-primary" @click="openCreate">+ Crear Categoría</button>
         </div>
       </div>
     </template>
@@ -117,15 +121,17 @@
 <script setup>
 /**
  * @view CategoriesView
- * @description Categories listing page with inline create/edit modal and delete confirmation.
+ * @description Categories listing page with inline modal for admin and view-only for clients.
  */
 import { ref, onMounted, watch } from 'vue'
 import { useCategoryStore } from '../stores/categories'
+import { useAuthStore } from '../stores/auth'
 import { formatDate } from '../utils/formatters'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 
 const categoryStore = useCategoryStore()
+const authStore = useAuthStore()
 
 // ── Form Modal State ──
 const showFormModal = ref(false)

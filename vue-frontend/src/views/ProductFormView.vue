@@ -116,13 +116,14 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProductStore } from '../stores/products'
-import { useCategoryStore } from '../stores/categories'
+import { useAuthStore } from '../stores/auth'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 
 const route = useRoute()
 const router = useRouter()
 const productStore = useProductStore()
 const categoryStore = useCategoryStore()
+const authStore = useAuthStore()
 
 const isEditing = computed(() => !!route.params.id)
 const initialLoading = ref(false)
@@ -139,6 +140,11 @@ const errors = computed(() => productStore.errors)
 
 /** Load product data when editing */
 onMounted(async () => {
+  if (!authStore.isAdmin) {
+    router.replace('/products')
+    return
+  }
+
   productStore.clearErrors()
   await categoryStore.fetchCategories()
 

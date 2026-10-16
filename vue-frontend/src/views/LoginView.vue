@@ -5,21 +5,7 @@
       <div class="login-brand">
         <div class="login-logo-badge">🔐</div>
         <h1 class="login-title">Inventario Pro</h1>
-        <p class="login-subtitle">Acceso al Panel de Administración</p>
-      </div>
-
-      <!-- Quick Credentials Helper -->
-      <div class="quick-credentials-box">
-        <div class="quick-header">
-          <span class="quick-badge">ADMIN DEMO</span>
-          <button type="button" class="quick-fill-btn" @click="fillAdminCredentials">
-            ⚡ Autocompletar
-          </button>
-        </div>
-        <div class="quick-data">
-          <div><strong>Email:</strong> admin@inventariopro.com</div>
-          <div><strong>Password:</strong> password123</div>
-        </div>
+        <p class="login-subtitle">Ingresa a tu cuenta</p>
       </div>
 
       <!-- Login Form -->
@@ -37,9 +23,10 @@
             type="email"
             class="form-input"
             :class="{ 'is-invalid': errors.email }"
-            placeholder="admin@inventariopro.com"
+            placeholder="usuario@dominio.com"
             autocomplete="email"
             required
+            autofocus
           />
           <p v-if="errors.email" class="form-error">{{ errors.email }}</p>
         </div>
@@ -62,7 +49,7 @@
               type="button"
               class="password-toggle-btn"
               @click="showPassword = !showPassword"
-              :aria-label="showPassword ? 'Ocultar' : 'Mostrar'"
+              :aria-label="showPassword ? 'Ocultar contraseña' : 'Ver contraseña'"
             >
               {{ showPassword ? '👁️' : '🔒' }}
             </button>
@@ -73,11 +60,11 @@
         <button
           type="submit"
           class="btn btn-primary"
-          style="width: 100%; justify-content: center; margin-top: 1rem; padding: 0.875rem;"
+          style="width: 100%; justify-content: center; margin-top: 1.25rem; padding: 0.875rem;"
           :disabled="authStore.loading"
         >
           <span v-if="authStore.loading" class="spinner spinner-sm"></span>
-          {{ authStore.loading ? 'Autenticando…' : 'Iniciar Sesión' }}
+          {{ authStore.loading ? 'Verificando…' : 'Iniciar Sesión' }}
         </button>
       </form>
     </div>
@@ -87,7 +74,7 @@
 <script setup>
 /**
  * @view LoginView
- * @description Admin login view with credentials helper, validation, and loading indicators.
+ * @description Secure login view without exposing credentials on screen.
  */
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -103,12 +90,6 @@ const form = ref({
 
 const errors = ref({})
 const showPassword = ref(false)
-
-function fillAdminCredentials() {
-  form.value.email = 'admin@inventariopro.com'
-  form.value.password = 'password123'
-  errors.value = {}
-}
 
 function validate() {
   errors.value = {}
@@ -149,13 +130,13 @@ async function handleLogin() {
   backdrop-filter: blur(24px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
-  padding: 2.5rem 2rem;
+  padding: 2.75rem 2.25rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .login-brand {
   text-align: center;
-  margin-bottom: 1.75rem;
+  margin-bottom: 2rem;
 }
 
 .login-logo-badge {
@@ -172,7 +153,7 @@ async function handleLogin() {
 }
 
 .login-title {
-  font-size: 1.5rem;
+  font-size: 1.625rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   background: var(--gradient-primary);
@@ -182,60 +163,9 @@ async function handleLogin() {
 }
 
 .login-subtitle {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   color: var(--color-text-muted);
   margin-top: 0.25rem;
-}
-
-.quick-credentials-box {
-  background: rgba(108, 99, 255, 0.08);
-  border: 1px dashed var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.875rem 1rem;
-  margin-bottom: 1.5rem;
-  font-size: 0.75rem;
-}
-
-.quick-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.quick-badge {
-  background: rgba(108, 99, 255, 0.2);
-  color: var(--color-accent-primary);
-  padding: 0.125rem 0.5rem;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.6875rem;
-}
-
-.quick-fill-btn {
-  background: rgba(108, 99, 255, 0.25);
-  border: 1px solid var(--color-border-hover);
-  color: var(--color-text-primary);
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.quick-fill-btn:hover {
-  background: var(--color-accent-primary);
-  color: #fff;
-}
-
-.quick-data {
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-}
-
-.quick-data strong {
-  color: var(--color-text-primary);
 }
 
 .login-alert {

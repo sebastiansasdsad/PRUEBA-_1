@@ -5,7 +5,9 @@
         <h1 class="page-title">Productos</h1>
         <p class="page-subtitle">{{ productStore.productCount }} productos registrados</p>
       </div>
-      <RouterLink to="/products/create" class="btn btn-primary">+ Nuevo Producto</RouterLink>
+      <RouterLink v-if="authStore.isAdmin" to="/products/create" class="btn btn-primary">
+        + Nuevo Producto
+      </RouterLink>
     </div>
 
     <LoadingSpinner v-if="productStore.loading" text="Cargando productos…" />
@@ -13,20 +15,25 @@
     <template v-else>
       <!-- Search & Filter Bar -->
       <div class="card" style="margin-bottom: 1.5rem; padding: 1rem 1.25rem;">
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
-          <input
-            v-model="searchQuery"
-            type="text"
-            class="form-input"
-            placeholder="Buscar por nombre…"
-            style="max-width: 320px;"
-          />
-          <select v-model="filterCategory" class="form-select" style="max-width: 220px;">
-            <option value="">Todas las categorías</option>
-            <option v-for="opt in categoryStore.categoryOptions" :key="opt.value" :value="opt.value">
-              {{ opt.label }}
-            </option>
-          </select>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; flex: 1;">
+            <input
+              v-model="searchQuery"
+              type="text"
+              class="form-input"
+              placeholder="Buscar por nombre…"
+              style="max-width: 320px;"
+            />
+            <select v-model="filterCategory" class="form-select" style="max-width: 220px;">
+              <option value="">Todas las categorías</option>
+              <option v-for="opt in categoryStore.categoryOptions" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
+          <div v-if="!authStore.isAdmin" class="badge badge-green">
+            Catálogo Cliente (Modo Lectura)
+          </div>
         </div>
       </div>
 
@@ -40,7 +47,7 @@
               <th>Categoría</th>
               <th>Precio</th>
               <th>Stock</th>
-              <th>Acciones</th>
+              <th v-if="authStore.isAdmin">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -61,7 +68,7 @@
                   {{ product.stock }} uds
                 </span>
               </td>
-              <td>
+              <td v-if="authStore.isAdmin">
                 <div class="table-actions">
                   <RouterLink
                     :to="`/products/${product.id}/edit`"
@@ -90,9 +97,9 @@
           <div class="empty-icon">📦</div>
           <div class="empty-title">No se encontraron productos</div>
           <div class="empty-desc">
-            {{ searchQuery || filterCategory ? 'Intenta ajustar los filtros de búsqueda.' : 'Agrega tu primer producto para empezar.' }}
+            {{ searchQuery || filterCategory ? 'Intenta ajustar los filtros de búsqueda.' : 'No hay productos disponibles en el catálogo.' }}
           </div>
-          <RouterLink v-if="!searchQuery && !filterCategory" to="/products/create" class="btn btn-primary">
+          <RouterLink v-if="authStore.isAdmin && !searchQuery && !filterCategory" to="/products/create" class="btn btn-primary">
             + Crear Producto
           </RouterLink>
         </div>
@@ -123,17 +130,19 @@
 <script setup>
 /**
  * @view ProductsView
- * @description Product listing page with search, filter, and delete functionality.
+ * @description Product listing page with search, filter, and role-based actions.
  */
 import { ref, computed, onMounted } from 'vue'
 import { useProductStore } from '../stores/products'
 import { useCategoryStore } from '../stores/categories'
+import { useAuthStore } from '../stores/auth'
 import { formatCurrency, truncate } from '../utils/formatters'
 import LoadingSpinner from '../components/LoadingSpinner.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 
 const productStore = useProductStore()
 const categoryStore = useCategoryStore()
+const authStore = useAuthStore()
 
 const searchQuery = ref('')
 const filterCategory = ref('')
